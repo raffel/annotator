@@ -244,12 +244,12 @@ function main(options) {
 
         s.textselector = new textselector.TextSelector(options.element, {
             onSelection: function (ranges, event) {
+                var annotation = null;
                 if (ranges.length > 0) {
-                    var annotation = makeAnnotation(ranges);
-                    s.interactionPoint = util.mousePosition(event);
-                    s.adder.load(annotation, s.interactionPoint);
-                } else {
-                    s.adder.hide();
+                    annotation = makeAnnotation(ranges);
+                }
+                if (options.onSelection) {
+                    options.onSelection(annotation);
                 }
             }
         });
@@ -289,6 +289,10 @@ function main(options) {
             s.textselector.destroy();
             s.viewer.destroy();
             removeDynamicStyle();
+        },
+
+        hasSelection: function() {
+            return (s.annotation != null);
         },
 
         annotationsLoaded: function (anns) { s.highlighter.drawAll(anns); },

@@ -305,7 +305,8 @@ function main(options) {
             // completes, and rejected if editing is cancelled. We return it
             // here to "stall" the annotation process until the editing is
             // done.
-            return s.editor.load(annotation, s.interactionPoint);
+            // return s.editor.load(annotation, s.interactionPoint);
+            return true;
         },
 
         beforeAnnotationUpdated: function (annotation) {

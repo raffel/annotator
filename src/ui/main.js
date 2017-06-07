@@ -242,6 +242,8 @@ function main(options) {
 
         s.highlighter = new highlighter.Highlighter(options.element);
 
+        app.highlighter = s.highlighter;
+
         s.textselector = new textselector.TextSelector(options.element, {
             onSelection: function (ranges, event) {
                 var annotation = null;
@@ -289,10 +291,6 @@ function main(options) {
             s.textselector.destroy();
             s.viewer.destroy();
             removeDynamicStyle();
-        },
-
-        hasSelection: function() {
-            return (s.annotation != null);
         },
 
         annotationsLoaded: function (anns) { s.highlighter.drawAll(anns); },

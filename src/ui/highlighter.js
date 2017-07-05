@@ -16,6 +16,7 @@ var Promise = util.Promise;
 //
 // Returns an array of highlight Elements.
 function highlightRange(normedRange, backgroundColor) {
+    var cssClass = 'annotator-highlight';
     var white = /^\s*$/;
 
     // Ignore text nodes that contain only whitespace characters. This prevents
@@ -29,6 +30,7 @@ function highlightRange(normedRange, backgroundColor) {
         var node = nodes[i];
         if (!white.test(node.nodeValue)) {
             var hl = global.document.createElement('span');
+            hl.className = cssClass;
             hl.style.backgroundColor = backgroundColor;
             node.parentNode.replaceChild(hl, node);
             hl.appendChild(node);

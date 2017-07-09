@@ -54,6 +54,7 @@ TextSelector.prototype.destroy = function () {
 // that fall outside of the adder's `element`.
 //
 // Returns an Array of NormalizedRange instances.
+var prevSelection = null;
 TextSelector.prototype.captureDocumentSelection = function () {
     var i,
         len,
@@ -64,6 +65,11 @@ TextSelector.prototype.captureDocumentSelection = function () {
     if (selection.isCollapsed) {
         return [];
     }
+    if (selection && prevSelection && prevSelection.baseOffset == selection.baseOffset &&
+      prevSelection.extendOffset == selection.extendOffset) {
+        return [];
+    }
+    prevSelection = selection;
 
     for (i = 0; i < selection.rangeCount; i++) {
         var r = selection.getRangeAt(i),

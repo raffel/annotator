@@ -34,7 +34,9 @@ function TextSelector(element, options) {
 
         $(element)
             .on("mouseup." + TEXTSELECTOR_NS, function (e) {
-                self._checkForEndSelection(e);
+                if (e.which == 1) {
+                    self._checkForEndSelection(e);
+                }
             });
     } else {
         console.warn("You created an instance of the TextSelector on an " +

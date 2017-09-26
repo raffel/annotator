@@ -15,7 +15,7 @@ var Promise = util.Promise;
 // cssClass - A CSS class to use for the highlight (default: 'annotator-hl')
 //
 // Returns an array of highlight Elements.
-function highlightRange(normedRange, backgroundColor) {
+function highlightRange(normedRange, backgroundColor, id) {
     var cssClass = 'annotator-highlight';
     var white = /^\s*$/;
 
@@ -29,12 +29,15 @@ function highlightRange(normedRange, backgroundColor) {
     for (var i = 0, len = nodes.length; i < len; i++) {
         var node = nodes[i];
         if (!white.test(node.nodeValue)) {
-            var hl = global.document.createElement('span');
-            hl.className = cssClass;
-            hl.style.backgroundColor = backgroundColor;
-            node.parentNode.replaceChild(hl, node);
-            hl.appendChild(node);
-            results.push(hl);
+            var attr = node.parentNode.getAttribute('data-annotation-id');
+            if (attr != id) {
+                var hl = global.document.createElement('span');
+                hl.className = cssClass;
+                hl.style.backgroundColor = backgroundColor;
+                node.parentNode.replaceChild(hl, node);
+                hl.appendChild(node);
+                results.push(hl);
+            }
         }
     }
     return results;
@@ -146,19 +149,19 @@ Highlighter.prototype.draw = function (annotation) {
 
     for (var j = 0, jlen = normedRanges.length; j < jlen; j++) {
         var normed = normedRanges[j];
-        $.merge(
-            annotation._local.highlights,
-            highlightRange(normed, annotation.backgroundColor)
-        );
+        var results = highlightRange(normed, annotation.backgroundColor, annotation._id);
+        if (results.length > 0) {
+            $.merge(annotation._local.highlights, results);
+        }
     }
 
     // Save the annotation data on each highlighter element.
     $(annotation._local.highlights).data('annotation', annotation);
 
     // Add a data attribute for annotation id if the annotation has one
-    if (typeof annotation.id !== 'undefined' && annotation.id !== null) {
+    if (typeof annotation._id !== 'undefined' && annotation._id !== null) {
         $(annotation._local.highlights)
-            .attr('data-annotation-id', annotation.id);
+            .attr('data-annotation-id', annotation._id);
     }
 
     return annotation._local.highlights;

@@ -141,11 +141,7 @@ Highlighter.prototype.draw = function (annotation) {
     if (!hasLocal) {
         annotation._local = {};
     }
-    var hasHighlights = (typeof annotation._local.highlights !== 'undefined' &&
-                         annotation._local.highlights !== null);
-    if (!hasHighlights) {
-        annotation._local.highlights = [];
-    }
+    annotation._local.highlights = [];
 
     for (var j = 0, jlen = normedRanges.length; j < jlen; j++) {
         var normed = normedRanges[j];
@@ -154,9 +150,6 @@ Highlighter.prototype.draw = function (annotation) {
             $.merge(annotation._local.highlights, results);
         }
     }
-
-    // Save the annotation data on each highlighter element.
-    $(annotation._local.highlights).data('annotation', annotation);
 
     // Add a data attribute for annotation id if the annotation has one
     if (typeof annotation._id !== 'undefined' && annotation._id !== null) {

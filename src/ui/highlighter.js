@@ -37,6 +37,8 @@ function highlightRange(normedRange, backgroundColor, id) {
                 node.parentNode.replaceChild(hl, node);
                 hl.appendChild(node);
                 results.push(hl);
+            } else {
+                results.push(node.parentNode);
             }
         }
     }

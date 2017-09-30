@@ -60,7 +60,7 @@ TextSelector.prototype.captureDocumentSelection = function () {
     var i,
         len,
         ranges = [],
-        rangesToIgnore = [],
+        normedRanges = [],
         selection = global.getSelection();
 
     if (selection.isCollapsed) {
@@ -68,9 +68,7 @@ TextSelector.prototype.captureDocumentSelection = function () {
     }
 
     for (i = 0; i < selection.rangeCount; i++) {
-        var r = selection.getRangeAt(i),
-            browserRange = new Range.BrowserRange(r),
-            normedRange = browserRange.normalize().limit(this.element);
+        var r = selection.getRangeAt(i);
 
         r = r.cloneRange();
         var ancestor = r.commonAncestorContainer;
@@ -91,47 +89,23 @@ TextSelector.prototype.captureDocumentSelection = function () {
                 var newRange = r.cloneRange();
                 var lastChild = textLayer.lastChild;
                 r.setEnd(lastChild, 1);
-                rangesToIgnore.push(r);
+                ranges.push(r);
                 pageNumber++;
 
                 page = ancestor.querySelector(`div.page[data-page-number="${pageNumber}"]`);
                 textLayer = page.querySelector('div.textLayer');
                 var firstChild = textLayer.firstChild;
                 newRange.setStart(firstChild, 0);
-                rangesToIgnore.push(newRange);
+                ranges.push(newRange);
             }
         }
         else {
-            // If the new range falls fully outside our this.element, we should
-            // add it back to the document but not return it from this method.
-            if (normedRange === null) {
-                rangesToIgnore.push(r);
-            } else {
-                ranges.push(normedRange);
-            }
+            ranges.push(r);
         }
     }
 
-    // BrowserRange#normalize() modifies the DOM structure and deselects the
-    // underlying text as a result. So here we remove the selected ranges and
-    // reapply the new ones.
-    // selection.removeAllRanges();
-    //
-    // for (i = 0, len = rangesToIgnore.length; i < len; i++) {
-    //     selection.addRange(rangesToIgnore[i]);
-    // }
-
-    // Add normed ranges back to the selection
-    // for (i = 0, len = ranges.length; i < len; i++) {
-    //     var range = ranges[i],
-    //         drange = this.document.createRange();
-    //     drange.setStartBefore(range.start);
-    //     drange.setEndAfter(range.end);
-    //     selection.addRange(drange);
-    // }
-    var normedRanges = [];
-    for (i = 0, len = rangesToIgnore.length; i < len; i++) {
-        var r = rangesToIgnore[i];
+    for (i = 0, len = ranges.length; i < len; i++) {
+        var r = ranges[i];
         var browserRange = new Range.BrowserRange(r);
         var normedRange = browserRange.normalize().limit(this.element);
         normedRanges.push(normedRange);

@@ -72,35 +72,72 @@ TextSelector.prototype.captureDocumentSelection = function () {
             browserRange = new Range.BrowserRange(r),
             normedRange = browserRange.normalize().limit(this.element);
 
-        // If the new range falls fully outside our this.element, we should
-        // add it back to the document but not return it from this method.
-        if (normedRange === null) {
-            rangesToIgnore.push(r);
-        } else {
-            ranges.push(normedRange);
+        r = r.cloneRange();
+        var ancestor = r.commonAncestorContainer;
+
+        if (ancestor.className == 'pdfViewer') {
+            // range covers multiple pages
+            var node = r.startContainer.parentNode;
+            var textLayer = node.closest('div.textLayer');
+            var page = textLayer.parentNode;
+            var pageNumber = page.getAttribute('data-page-number')
+
+            var endNode = r.endContainer.parentNode;
+            var endTextLayer = endNode.closest('div.textLayer');
+            var endPage = endTextLayer.parentNode;
+            var endPageNumber = endPage.getAttribute('data-page-number')
+
+            while (pageNumber < endPageNumber) {
+                var newRange = r.cloneRange();
+                var lastChild = textLayer.lastChild;
+                r.setEnd(lastChild, 1);
+                rangesToIgnore.push(r);
+                pageNumber++;
+
+                page = ancestor.querySelector(`div.page[data-page-number="${pageNumber}"]`);
+                textLayer = page.querySelector('div.textLayer');
+                var firstChild = textLayer.firstChild;
+                newRange.setStart(firstChild, 0);
+                rangesToIgnore.push(newRange);
+            }
+        }
+        else {
+            // If the new range falls fully outside our this.element, we should
+            // add it back to the document but not return it from this method.
+            if (normedRange === null) {
+                rangesToIgnore.push(r);
+            } else {
+                ranges.push(normedRange);
+            }
         }
     }
 
     // BrowserRange#normalize() modifies the DOM structure and deselects the
     // underlying text as a result. So here we remove the selected ranges and
     // reapply the new ones.
-    selection.removeAllRanges();
-
-    for (i = 0, len = rangesToIgnore.length; i < len; i++) {
-        selection.addRange(rangesToIgnore[i]);
-    }
+    // selection.removeAllRanges();
+    //
+    // for (i = 0, len = rangesToIgnore.length; i < len; i++) {
+    //     selection.addRange(rangesToIgnore[i]);
+    // }
 
     // Add normed ranges back to the selection
-    for (i = 0, len = ranges.length; i < len; i++) {
-        var range = ranges[i],
-            drange = this.document.createRange();
-        drange.setStartBefore(range.start);
-        drange.setEndAfter(range.end);
-        selection.addRange(drange);
+    // for (i = 0, len = ranges.length; i < len; i++) {
+    //     var range = ranges[i],
+    //         drange = this.document.createRange();
+    //     drange.setStartBefore(range.start);
+    //     drange.setEndAfter(range.end);
+    //     selection.addRange(drange);
+    // }
+    var normedRanges = [];
+    for (i = 0, len = rangesToIgnore.length; i < len; i++) {
+        var r = rangesToIgnore[i];
+        var browserRange = new Range.BrowserRange(r);
+        var normedRange = browserRange.normalize().limit(this.element);
+        normedRanges.push(normedRange);
     }
 
-
-    return ranges;
+    return normedRanges;
 };
 
 // Event callback: called when the mouse button is released. Checks to see if a

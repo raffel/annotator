@@ -139,6 +139,10 @@ TextSelector.prototype._checkForEndSelection = function (event) {
 
     // Don't show the adder if the selection was of a part of Annotator itself.
     for (var i = 0, len = selectedRanges.length; i < len; i++) {
+        if (!selectedRanges[i]) {
+            _nullSelection();
+            return;
+        }
         var container = selectedRanges[i].commonAncestor;
         if ($(container).hasClass('annotator-hl')) {
             container = $(container).parents('[class!=annotator-hl]')[0];

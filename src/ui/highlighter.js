@@ -33,7 +33,7 @@ function highlightRange(normedRange, backgroundColor, id) {
             if (attr != id) {
                 var hl = global.document.createElement('span');
                 hl.className = cssClass;
-                hl.style.backgroundColor = backgroundColor;
+                hl.style.boxShadow = '0 2px 0 ' + backgroundColor;
                 node.parentNode.replaceChild(hl, node);
                 hl.appendChild(node);
                 results.push(hl);
